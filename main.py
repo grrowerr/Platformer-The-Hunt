@@ -5,7 +5,7 @@ from tiles import Tile
 pygame.init()
 main_win = pygame.display.set_mode((scr_width, scr_height))
 clock = pygame.time.Clock()
-test_tile = pygame.sprite.Group(Tile((100, 100), 200)))
+test_tile = pygame.sprite.Group(Tile((100, 100), 200))
 
 while True:
     for event in pygame.event.get():
