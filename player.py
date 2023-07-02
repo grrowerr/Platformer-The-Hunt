@@ -1,10 +1,13 @@
 import pygame
+from support import import_folder
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__()
-        self.image = pygame.Surface((25, 64))
-        self.image.fill('red')
+        self.import_char_assets()
+        self.frame_index = 0
+        self.animation_speed = 0.15
+        self.image = self.char_animations['idle'][self.frame_index]
         self.rect = self.image.get_rect(topleft = pos)
 
         #player movement
@@ -13,6 +16,13 @@ class Player(pygame.sprite.Sprite):
         self.gravity = 0.8
         self.jump_speed = -16
 
+    def import_char_assets(self):
+        character_path = 'graphics/character/'
+        self.char_animations = {'idle': [], 'run': [], 'jump': [], 'fall': []}
+
+        for animation in self.char_animations.keys():
+            full_path = character_path + animation
+            self.char_animations[animation] = import_folder(full_path)
     def get_input_data(self):
         keys = pygame.key.get_pressed()
 
@@ -25,8 +35,6 @@ class Player(pygame.sprite.Sprite):
 
         if keys[pygame.K_SPACE]:
             self.jump()
-
-
 
     def apply_gravity(self):
         self.direction.y += self.gravity
