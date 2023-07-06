@@ -24,7 +24,7 @@ class Level:
                     tile = Tile((x,y), tile_size)
                     self.tiles.add(tile)
                 elif column == 'P':
-                    main_player_sprite = Player((x,y))
+                    main_player_sprite = Player((x,y), self.display_surface)
                     self.player.add(main_player_sprite)
 
     def scroll_x(self):
