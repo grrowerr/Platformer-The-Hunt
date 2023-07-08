@@ -2,6 +2,7 @@ import pygame
 from tiles import Tile
 from main_settings import tile_size, scr_width
 from player import Player
+from particles import ParticleEffect
 
 class Level:
     def __init__(self, level_data, surface):
@@ -11,6 +12,34 @@ class Level:
         self.setup_level_tile(level_data)
         self.world_shift = 0
         self.current_x = 0
+
+        #dust
+        self.dust_sprite = pygame.sprite.GroupSingle()
+        self.player_on_ground = False
+
+    def create_jump_particles(self, pos):
+        if self.player.sprite.facing_right:
+            pos -= pygame.math.Vector2(10, 5)
+        else:
+            pos += pygame.math.Vector2(10, -5)
+        jump_particle_sprite = ParticleEffect(pos, 'jump')
+        self.dust_sprite.add(jump_particle_sprite)
+
+    def get_player_on_ground(self):
+        if self.player.sprite.on_ground:
+            self.player_on_ground = True
+        else:
+            self.player_on_ground = False
+
+    def create_landing_dust(self):
+        if not self.player_on_ground and self.player.sprite.on_ground and not self.dust_sprite.sprites():
+            if self.player.sprite.facing_right:
+                offset = pygame.math.Vector2(10, 15)
+            else:
+                offset = pygame.math.Vector2(-10, 15)
+            fall_dust_particle = ParticleEffect(self.player.sprite.rect.midbottom - offset, 'land')
+            self.dust_sprite.add(fall_dust_particle)
+
 
     def setup_level_tile(self, level_layout):
         self.tiles = pygame.sprite.Group()
@@ -24,7 +53,7 @@ class Level:
                     tile = Tile((x,y), tile_size)
                     self.tiles.add(tile)
                 elif column == 'P':
-                    main_player_sprite = Player((x,y), self.display_surface)
+                    main_player_sprite = Player((x,y), self.display_surface, self.create_jump_particles)
                     self.player.add(main_player_sprite)
 
     def scroll_x(self):
@@ -81,11 +110,11 @@ class Level:
         if player.on_ceiling and player.direction.y > 0:
             player.on_ceiling = False
 
-
-
-
-
     def run_level(self):
+        # dust particles
+        self.dust_sprite.update(self.world_shift)
+        self.dust_sprite.draw(self.display_surface)
+
         #level tiles
         self.tiles.update(self.world_shift)
         self.tiles.draw(self.display_surface)
@@ -94,5 +123,7 @@ class Level:
         #self player
         self.player.update()
         self.h_movement_collission()
+        self.get_player_on_ground()
         self.v_movement_collission()
+        self.create_landing_dust()
         self.player.draw(self.display_surface)

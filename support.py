@@ -1,5 +1,7 @@
 from os import walk
 from pygame.image import load
+
+
 def import_folder(path):
 
     image_surfaces = list()
